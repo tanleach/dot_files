@@ -1,0 +1,42 @@
+---
+- name: Install ZSH, set it as default shell, and install Oh My Zsh
+  hosts: all
+  become: yes
+  vars:
+    zsh_user: "{{ ansible_user }}"
+
+  tasks:
+    - name: Install zsh package
+      apt:
+        name: zsh
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install zsh package on RedHat based systems
+      yum:
+        name: zsh
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Set zsh as default shell for the user
+      user:
+        name: "{{ zsh_user }}"
+        shell: /bin/zsh
+
+    - name: Install Oh My Zsh
+      get_url:
+        url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+        dest: /tmp/install-oh-my-zsh.sh
+        mode: '0755'
+
+    - name: Run Oh My Zsh installation script as the user
+      command: "/bin/bash /tmp/install-oh-my-zsh.sh --unattended"
+      become: no
+      become_user: "{{ zsh_user }}"
+      args:
+        creates: "/home/{{ zsh_user }}/.oh-my-zsh"
+
+    - name: Remove Oh My Zsh installation script
+      file:
+        path: /tmp/install-oh-my-zsh.sh
+        state: absent

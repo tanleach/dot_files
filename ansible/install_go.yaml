@@ -1,0 +1,46 @@
+---
+- name: Install specific version of Go if not already installed
+  hosts: all
+  become: yes
+  vars:
+    go_version: "1.24.0"  # Specify the desired Go version here
+
+  tasks:
+    - name: Check if the specified version of Go is installed
+      command: /usr/local/go/bin/go version
+      register: go_version_check
+      failed_when: false
+      changed_when: false
+      ignore_errors: true
+
+    - name: Set facts based on the installed Go version
+      set_fact:
+        go_installed_version: "{{ go_version_check.stdout.split()[2] | default('') }}"
+
+    - name: Download and install specified version of Go if not already installed
+      block:
+      - name: Download go tar file
+        command: wget https://go.dev/dl/go{{go_version}}.linux-amd64.tar.gz
+
+      - name: Delete previous installation
+        command: rm -rf /usr/local/go
+        become: true
+
+      - name: Extract and move new go folder to /usr/local
+        command: tar -C /usr/local -xzf go{{go_version}}.linux-amd64.tar.gz
+        become: true
+
+      - name: Delete downloaded tar file
+        shell: rm -rf go{{go_version}}.linux-amd64.tar.gz*
+
+      - name: Add go binary path to ~/.profile
+        lineinfile:
+          path: ~/.profile
+          line: 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin'
+          create: true
+          state: present
+
+      - name: Source updated profile
+        shell: . ~/.profile
+
+      when: "'go' not in go_installed_version or go_installed_version != 'go'+go_version"

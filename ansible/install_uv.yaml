@@ -1,0 +1,20 @@
+---
+- name: Install UV (python package manager)
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Download UV
+      get_url:
+        url: https://astral.sh/uv/install.sh
+        dest: /tmp/install-uv.sh
+        mode: '0755'
+
+    - name: Run Oh My Zsh installation script as the user
+      command: "/bin/bash /tmp/install-uv.sh"
+      become: no
+
+    - name: Remove UV installation script
+      file:
+        path: /tmp/install-uv.sh
+        state: absent
