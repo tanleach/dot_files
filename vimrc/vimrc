@@ -1,0 +1,167 @@
+set nocompatible
+syntax on
+filetype plugin indent on
+
+execute pathogen#infect()
+
+set encoding=utf-8
+
+
+" remove visual bell
+set t_vb=
+
+syntax enable
+set background=dark
+set t_Co=256
+
+" No backups
+set noswapfile
+set nobackup
+set nowb
+
+
+set smarttab
+set expandtab
+set shiftwidth=4
+set tabstop=4
+set laststatus=2
+set cmdheight=2
+
+set backspace=indent,eol,start
+
+set showcmd
+set foldmethod=syntax
+set autoindent
+
+
+set nofoldenable
+" Beter search
+set hid number ignorecase hlsearch
+set autoread ruler
+set showmatch
+set smartcase
+
+
+
+" Ugh beeping
+set visualbell
+set noerrorbells
+
+" Escape easily
+inoremap jj <Esc>
+inoremap jk <Esc>
+inoremap kk <Esc>
+inoremap kj <Esc>
+
+
+" Get better
+noremap <Up> <NOP>
+noremap <Down> <NOP>
+noremap <Left> <NOP>
+noremap <Right> <NOP>
+
+inoremap <Up> <NOP>
+inoremap <Down> <NOP>
+inoremap <Left> <NOP>
+inoremap <Right> <NOP>
+
+" Move between window with control-direction
+map <C-j> <C-W>j
+map <C-k> <C-W>k
+map <C-h> <C-W>h
+map <C-l> <C-W>l
+
+
+" Allow w!! to sudo force writing
+cmap w!! w !sudo tee % >/dev/null
+
+" I hate the shift key, map all the shit I type to what I mean
+if has("user_commands")
+        command! -bang -nargs=? -complete=file E e<bang> <args>
+        command! -bang -nargs=? -complete=file W w<bang> <args>
+        command! -bang -nargs=? -complete=file Wq wq<bang> <args>
+        command! -bang -nargs=? -complete=file WQ wq<bang> <args>
+        command! -bang Wa wa<bang>
+        command! -bang WA wa<bang>
+        command! -bang Q q<bang>
+        command! -bang QA qa<bang>
+        command! -bang Qa qa<bang>
+endif
+
+
+" Leader is the space bar.
+nnoremap <SPACE> <Nop>
+let mapleader=" "
+
+"Paste mode with leader-p
+noremap  <leader>p <esc>:set paste!<cr>i
+nnoremap <leader>p :set paste!<cr>
+
+" =====================
+" GO STUFF
+" =====================
+
+" vim-go shortcuts, only enable in go files
+autocmd FileType go nmap <leader>b  <Plug>(go-build)
+autocmd FileType go nmap <leader>l  <Plug>(go-lint)
+autocmd FileType go nmap <leader>v  <Plug>(go-vet)
+autocmd FileType go nmap <leader>r  <Plug>(go-rename)
+
+let g:go_auto_type_info=1
+let g:go_updatetime=100
+let g:go_doc_popup_window = 1
+
+" disable all linters as that is taken care of by coc.nvim
+let g:go_diagnostics_enabled = 0
+let g:go_metalinter_enabled = []
+
+" don't jump to errors after metalinter is invoked
+let g:go_jump_to_error = 0
+
+" run go imports on file save
+let g:go_fmt_command = "goimports"
+
+" automatically highlight variable your cursor is on
+let g:go_auto_sameids = 0
+
+let g:go_highlight_types = 1
+let g:go_highlight_fields = 1
+let g:go_highlight_functions = 1
+let g:go_highlight_function_calls = 1
+let g:go_highlight_operators = 1
+let g:go_highlight_extra_types = 1
+let g:go_highlight_build_constraints = 1
+let g:go_highlight_generate_tags = 1
+
+colorscheme gruvbox
+autocmd ColorScheme * highlight CocErrorFloat guifg=#ffffff
+autocmd ColorScheme * highlight CocInfoFloat guifg=#ffffff
+autocmd ColorScheme * highlight CocWarningFloat guifg=#ffffff
+autocmd ColorScheme * highlight SignColumn guibg=#adadad
+
+
+" nerdtree!
+" nnoremap <leader>n :NERDTreeToggle<CR>
+" nnoremap <leader>f :NERDTreeFind<CR>
+
+nnoremap <leader>h <Esc>:call EasyMode()<CR>
+nnoremap <leader>H <Esc>:call HardMode()<CR>
+
+
+
+
+"""
+" Use tab for trigger completion with characters ahead and navigate.
+" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+" other plugin before putting this into your config.
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+ inoremap <silent><expr> <TAB>
+       \ pumvisible() ? "\<C-n>" :
+       \ <SID>check_back_space() ? "\<TAB>" :
+       \ coc#refresh()
+ inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
